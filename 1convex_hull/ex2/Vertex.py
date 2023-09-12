@@ -4,5 +4,5 @@ class Vertex:
         self.x = x
         self.y = y
     def __str__(self) -> str:
-        return f"x: {self.x}, y: {self.y}"
+        return f"[{self.x}, {self.y}]"
 
