@@ -42,6 +42,7 @@ def stitchHull(hull: List[Segment]) -> List[Vertex]:
     while len(hull) != 0:
         for i in range(len(hull)):
             if hull[i].a == vertexList[-1]:
+                segment = hull.pop(i)
                 vertexList.append(segment.b)
                 break
             if hull[i].b == vertexList[-1]:

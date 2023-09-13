@@ -1,6 +1,8 @@
 import math
 import random
 from typing import List, Tuple
+
+from hull import extremEdge
 from Triangle import Triangle
 import pygame
 import sys
@@ -54,13 +56,14 @@ def drawCircle(center, radius, color=WHITE, size=2):
 
 def distance(vertexA, vertexB):
     return math.sqrt((vertexB.x - vertexA.x)**2 + (vertexB.y - vertexA.y)**2)
-def createRandomVertex():
-    VERTE_NB = 3
-    for i in range(VERTE_NB):
+def createRandomVertex(n):
+    result = []
+    for _ in range(n):
         vertex = Vertex(random.randint(100, width-100),
                         random.randint(100, height-100))
-        vertexList.append(vertex)
+        result.append(vertex)
         drawVertex(vertex)
+    return result 
 
 
 # emptyCircle
@@ -135,6 +138,30 @@ def splitTriangle(triangle, vertex):
     triangleBC.neighborList = [triangleAB.neighborList[2], triangleAB, triangleBC]
     return [triangleAB, triangleBC, triangleCA]
 
+# Naive
+def naiveTriangulation(vertexList):
+    vertexToInsert = vertexList
+    hull = extremEdge(vertexList)[:-1]
+    for vertex in hull:
+        vertexToInsert.remove(vertex)
+    triangulation = triangulationHull(hull)
+    while len(vertexToInsert) != 0:
+        vertex = vertexToInsert.pop()
+        triangulation = insertVertexInTrianglulation(triangulation, vertex)
+    return triangulation
+def triangulationHull(vertexList):
+    triangulation = []
+    pivot = vertexList[0]
+    lastTriangle = None
+    for index in range(1, len(vertexList)-1): 
+        currentTriangle = Triangle([pivot, vertexList[index], vertexList[index+1]],[])
+        triangulation.append(currentTriangle)
+        if lastTriangle is not None:
+            lastTriangle.neighborList[2] = currentTriangle
+            currentTriangle.neighborList[0] = lastTriangle
+        lastTriangle = currentTriangle
+    return triangulation
+
 # delaunayTest
 def delaunay(triangle, neighborsIndex):
     oppositeVertexIndex = findOppositeVertex(triangle, neighborsIndex)
@@ -161,38 +188,52 @@ def lawsonFlip(triangle, neighborsIndex, oppositeVertexIndex):
     triangle = newTriangle
     triangle.neighborList[neighborsIndex] = newNeighbor
     # update neighbor
+
     
-    
 
 
+triangleA = Triangle([Vertex(300,300), Vertex(300,600), Vertex(600,300)], [])
+triangleB = Triangle([Vertex(300,600), Vertex(600,300), Vertex(700,700)], [])
+triangleA.neighborList[1] = triangleB
+triangleB.neighborList[0] = triangleA
+for i in range(3):
+    if triangleB.neighborList[i] is not None:
+        print('ha')
+        neiIndex = i
+opVertexIndice = findOppositeVertex(triangleB, neiIndex)
+print(delaunayTest(triangleB, neiIndex, opVertexIndice))
 
 
-createRandomVertex()
-triangle = Triangle(vertexList, [None, None, None])
+drawTriangle(triangleA, RED)
+drawTriangle(triangleB, GREEN)
+drawEdge(triangleB.vertexList[neiIndex], triangleB.vertexList[(neiIndex+1)%3], YELLOW, 3)
+drawVertex(triangleB.neighborList[neiIndex].vertexList[opVertexIndice], WHITE, 5)
+# triangle = Triangle(vertexList, [None, None, None])
 # drawTriangle(triangle)
 # findEmptyCircle(triangle)
-triangulation = [triangle]
 
-vertexToTest = Vertex(0,0)
+# vertexToTest = Vertex(0,0)
 def mouseEventHandler(event):
     global triangulation
     global vertexToTest
     if event.button == 1:
-        drawVertex(vertexToTest, (0,0,0), 3)
-        x, y = pygame.mouse.get_pos()
-        vertexToTest = Vertex(x, y)
-        triangulation = insertVertexInTrianglulation(triangulation, vertexToTest)
-        drawTriangulation(triangulation)
-
+        # drawVertex(vertexToTest, (0,0,0), 3)
+        # x, y = pygame.mouse.get_pos()
+        # vertexToTest = Vertex(x, y)
+        # triangulation = insertVertexInTrianglulation(triangulation, vertexToTest)
+        # drawTriangulation(triangulation)
+        return
 
 
 def keyboardEventHandler(event):
     if event.key == pygame.K_r:
-        # createRandomVertex()
-        return
+        vertexList+=createRandomVertex(10)
     if event.key == pygame.K_e:
-        return
-
+        hullList = extremEdge(vertexList)
+        for i in range(len(hullList)-1):
+            drawEdge(hullList[i], hullList[i+1])
+    if event.key == pygame.K_t:
+        triangulation = naiveTriangulation(vertexList)
 
 def game():
     global triangulation
@@ -206,9 +247,9 @@ def game():
             if event.type == pygame.KEYDOWN:
                 keyboardEventHandler(event)
 
-        canvas.fill(background)
-        drawVertex(vertexToTest)
-        drawTriangulation(triangulation)
+        # canvas.fill(background)
+        # drawVertex(vertexToTest)
+        # drawTriangulation(vertexList)
         pygame.display.flip()
 
 
