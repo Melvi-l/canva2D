@@ -1,5 +1,6 @@
 import math
 import random
+import time
 from typing import List, Tuple
 
 from hull import extremEdge
@@ -178,36 +179,38 @@ def delaunayTest(triangle, neighborsIndex, oppositeVertexIndex):
     center, radius = findEmptyCircle(triangle)
     return radius >= distance(center, triangle.neighborList[neighborsIndex].vertexList[oppositeVertexIndex])
 
-def lawsonFlip(triangle, neighborsIndex, oppositeVertexIndex):
+def lawsonFlipIncrement(triangle, neighborsIndex, oppositeVertexIndex):
+    neighbor = triangle.neighborList[neighborsIndex] 
     oldEdge = triangle.vertexList[neighborsIndex], triangle.vertexList[(neighborsIndex+1)%3] 
     newEdge = triangle.neighborList[neighborsIndex].vertexList[oppositeVertexIndex], triangle.vertexList[(neighborsIndex+2)%3]
-    newTriangle = Triangle(oldEdge[0], newEdge[0], newEdge[1], [])
-    newNeighbor = Triangle(oldEdge[1], newEdge[0], newEdge[1], [])
-    newTriangle.neighborList = [triangle.neighborList.neighborList[(oppositeVertexIndex-1)%3], newNeighbor, triangle.neighborList[(neighborsIndex-1)%3]]
-    newNeighbor.neighborList = [triangle.neighborList.neighborList[oppositeVertexIndex], newNeighbor, triangle.neighborList[(neighborsIndex+1)%3]]
-    triangle = newTriangle
-    triangle.neighborList[neighborsIndex] = newNeighbor
+    print(newEdge)
+    triangle.vertexList = [oldEdge[0], newEdge[0], newEdge[1]]
+    neighbor.vertexList = [oldEdge[1], newEdge[0], newEdge[1]]
+    newTriangleNeighborList = [triangle.neighborList[(oppositeVertexIndex-1)%3], neighbor, triangle.neighborList[(neighborsIndex-1)%3]]
+    newNeighborNeighborList = [triangle.neighborList[oppositeVertexIndex], neighbor, triangle.neighborList[(neighborsIndex+1)%3]]
+    triangle.neighborList = newTriangleNeighborList
+    neighbor.neighborList = newNeighborNeighborList
     # update neighbor
 
     
 
 
 triangleA = Triangle([Vertex(300,300), Vertex(300,600), Vertex(600,300)], [])
-triangleB = Triangle([Vertex(300,600), Vertex(600,300), Vertex(700,700)], [])
+triangleB = Triangle([Vertex(300,600), Vertex(600,300), Vertex(500,500)], [])
 triangleA.neighborList[1] = triangleB
 triangleB.neighborList[0] = triangleA
 for i in range(3):
     if triangleB.neighborList[i] is not None:
-        print('ha')
         neiIndex = i
 opVertexIndice = findOppositeVertex(triangleB, neiIndex)
 print(delaunayTest(triangleB, neiIndex, opVertexIndice))
-
-
 drawTriangle(triangleA, RED)
 drawTriangle(triangleB, GREEN)
 drawEdge(triangleB.vertexList[neiIndex], triangleB.vertexList[(neiIndex+1)%3], YELLOW, 3)
 drawVertex(triangleB.neighborList[neiIndex].vertexList[opVertexIndice], WHITE, 5)
+
+
+
 # triangle = Triangle(vertexList, [None, None, None])
 # drawTriangle(triangle)
 # findEmptyCircle(triangle)
@@ -224,14 +227,19 @@ def mouseEventHandler(event):
         # drawTriangulation(triangulation)
         return
 
+def testRef(triangle):
+    triangle.vertexList[0] = Vertex(0,0)
 
 def keyboardEventHandler(event):
+    global neiIndex
     if event.key == pygame.K_r:
         vertexList+=createRandomVertex(10)
     if event.key == pygame.K_e:
-        hullList = extremEdge(vertexList)
-        for i in range(len(hullList)-1):
-            drawEdge(hullList[i], hullList[i+1])
+        lawsonFlip(triangleB, neiIndex, opVertexIndice)
+        print(triangleA)
+        # testRef(triangleA)
+        drawTriangle(triangleA, RED)
+        drawTriangle(triangleB, GREEN)
     if event.key == pygame.K_t:
         triangulation = naiveTriangulation(vertexList)
 
