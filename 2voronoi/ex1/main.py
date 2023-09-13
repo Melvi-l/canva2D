@@ -130,15 +130,39 @@ def splitTriangle(triangle, vertex):
     triangleAB = Triangle([triangle.vertexList[0], triangle.vertexList[1], vertex], [])
     triangleBC = Triangle([triangle.vertexList[1], triangle.vertexList[2], vertex], [])
     triangleCA = Triangle([triangle.vertexList[2], triangle.vertexList[0], vertex], [])
-    triangleAB.neighbors = [triangleAB.neighbors[0], triangleBC, triangleCA]
-    triangleBC.neighbors = [triangleAB.neighbors[1], triangleCA, triangleAB]
-    triangleBC.neighbors = [triangleAB.neighbors[2], triangleAB, triangleBC]
+    triangleAB.neighborList = [triangleAB.neighborList[0], triangleBC, triangleCA]
+    triangleBC.neighborList = [triangleAB.neighborList[1], triangleCA, triangleAB]
+    triangleBC.neighborList = [triangleAB.neighborList[2], triangleAB, triangleBC]
     return [triangleAB, triangleBC, triangleCA]
 
-
 # delaunayTest
-def delaunayTest(triangle, neighborsIndex):
+def delaunay(triangle, neighborsIndex):
+    oppositeVertexIndex = findOppositeVertex(triangle, neighborsIndex)
+    if delaunayTest(triangle):
+        return
+
+def findOppositeVertex(triangle, neighborsIndex):
+    neighbor = triangle.neighborList[neighborsIndex]
+    for index in range(3):
+        if neighbor.neighborList[index] == triangle:
+            return (index+2)%3
+
+def delaunayTest(triangle, neighborsIndex, oppositeVertexIndex):
     center, radius = findEmptyCircle(triangle)
+    return radius >= distance(center, triangle.neighborList[neighborsIndex].vertexList[oppositeVertexIndex])
+
+def lawsonFlip(triangle, neighborsIndex, oppositeVertexIndex):
+    oldEdge = triangle.vertexList[neighborsIndex], triangle.vertexList[(neighborsIndex+1)%3] 
+    newEdge = triangle.neighborList[neighborsIndex].vertexList[oppositeVertexIndex], triangle.vertexList[(neighborsIndex+2)%3]
+    newTriangle = Triangle(oldEdge[0], newEdge[0], newEdge[1], [])
+    newNeighbor = Triangle(oldEdge[1], newEdge[0], newEdge[1], [])
+    newTriangle.neighborList = [triangle.neighborList.neighborList[(oppositeVertexIndex-1)%3], newNeighbor, triangle.neighborList[(neighborsIndex-1)%3]]
+    newNeighbor.neighborList = [triangle.neighborList.neighborList[oppositeVertexIndex], newNeighbor, triangle.neighborList[(neighborsIndex+1)%3]]
+    triangle = newTriangle
+    triangle.ne
+    
+
+
 
 
 createRandomVertex()
