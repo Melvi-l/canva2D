@@ -32,3 +32,10 @@ inside test convex: for every segment, the vertex is on the same side
 
 inside test concave: sum the angle between every vertex, if it's equal to 2PI, it's inside (work for convex too), if it's equals to 0 it's outside
 
+# Triangulation, Delaunay, Voronoi
+
+## Triangulation
+
+Euler formula: n+(T+1)-E=2 w/ n number of vertices, T number of triangle, E number of edge 
+
+for each triangle => 3 Edge, but each is share with to triangle expcept the convex hull => 3T = 2E - h

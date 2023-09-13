@@ -71,7 +71,8 @@ def findLowest(vertexList: List[Vertex]) -> Vertex:
             lowestVertex = vertex
     return lowestVertex
 
-def findMin
+def findMinAngle(vertexList: List[Vertex]) -> Vertex:
+    return vertexList[0]
 
 def listToPolygon(hull: List (Vertex)) -> Polygon:
     polygon = Polygon([])
