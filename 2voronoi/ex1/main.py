@@ -159,7 +159,9 @@ def lawsonFlip(triangle, neighborsIndex, oppositeVertexIndex):
     newTriangle.neighborList = [triangle.neighborList.neighborList[(oppositeVertexIndex-1)%3], newNeighbor, triangle.neighborList[(neighborsIndex-1)%3]]
     newNeighbor.neighborList = [triangle.neighborList.neighborList[oppositeVertexIndex], newNeighbor, triangle.neighborList[(neighborsIndex+1)%3]]
     triangle = newTriangle
-    triangle.ne
+    triangle.neighborList[neighborsIndex] = newNeighbor
+    # update neighbor
+    
     
 
 
